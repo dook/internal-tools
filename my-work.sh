@@ -21,6 +21,6 @@ echo "========================================================================="
 echo "Zmiany w ${PWD##*/} na miesiąc ${date} dla ${gituser}"
 echo
 
-git log --all --name-only --pretty=format: --after=${date}-01 --before=${date}-31 --author=${gituser} | grep . | sort | uniq -c | sort -r | awk '{print $2,$1}' | column -t -o " | " -N Plik,"Ilość zmian"
+git log --all --name-only --pretty=format: --after=${date}-01 --before=${date}-31 --author=${gituser} | grep . | sort | uniq -c | sort -r | awk '{print $2,"->",$1}'
 
 echo "========================================================================="
