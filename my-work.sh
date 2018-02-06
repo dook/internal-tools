@@ -22,7 +22,7 @@ echo "Zmiany w ${PWD##*/} na miesiąc ${date} dla ${gituser}"
 echo
 
 
-pyscr="$(cat <<-EOF
+python > /dev/tty <<-EOF
 import subprocess
 from collections import Counter
 
@@ -44,8 +44,5 @@ for commit in log.splitlines():
 for f, ch in data.items():
   print("Plik %s, zmienionych linii: %s" % (f, ch))
 EOF
-)"
-
-python > /dev/tty <<< ${pyscr}
 
 echo "========================================================================="
