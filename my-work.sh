@@ -38,7 +38,7 @@ for commit in log.splitlines():
     stats = subprocess.check_output('git diff 4b825dc642cb6eb9a060e54bf8d69288fbee4904 %s --numstat' % commit, shell=True)
   for stat in stats.splitlines():
     # print(stat.decode())
-    ins, dels, f = stat.split(maxsplit=2)
+    ins, dels, f = stat.split(None, 2)
     data[f.decode()] += (int(ins) + int(dels))
 
 for f, ch in data.items():
