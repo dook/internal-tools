@@ -28,7 +28,7 @@ from collections import Counter
 
 data = Counter()
 
-log = subprocess.check_output('git log --all --after=${date}-01 --before=${date}-31 --author=${gituser} --pretty=format:"%h"', shell=True)
+log = subprocess.check_output('git log --all --after="${date}-01 00:00" --before="${date}-31 23:59" --author=${gituser} --pretty=format:"%h"', shell=True)
 
 for commit in log.splitlines():
   commit = commit.decode()
