@@ -39,7 +39,10 @@ for commit in log.splitlines():
   for stat in stats.splitlines():
     # print(stat.decode())
     ins, dels, f = stat.split(None, 2)
-    data[f.decode()] += (int(ins) + int(dels))
+    try:
+        data[f.decode()] += (int(ins) + int(dels))
+    except Exception:
+        pass
 
 for f, ch in data.items():
   print("Plik %s, zmienionych linii: %s" % (f, ch))
