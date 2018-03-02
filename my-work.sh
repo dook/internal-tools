@@ -18,7 +18,8 @@ echo
 echo
 
 echo "========================================================================="
-echo "Zmiany w ${PWD##*/} na miesiąc ${date} dla ${gituser}"
+echo "ZAŁĄCZNIK A do Raportu wykonania zlecenia"
+echo "Changes in ${PWD##*/} for date: ${date}, created by: ${gituser}"
 echo
 
 
@@ -45,7 +46,9 @@ for commit in log.splitlines():
         pass
 
 for f, ch in data.items():
-  print("Plik %s, zmienionych linii: %s" % (f, ch))
+  print("File %s, modified lines: %s" % (f, ch))
 EOF
 
+echo ".............                                              .............."
+echo "Zleceniodawca                                              Zleceniobiorca"
 echo "========================================================================="
