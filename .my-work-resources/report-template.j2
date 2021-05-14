@@ -1,0 +1,20 @@
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>raport-pracy-tworczej-{{ report_date }}</title>
+</head>
+<body>
+    <h4>[{{ name_and_surname }}] Zestawienie efektów pracy twórczej stanowiących utwór za okres {{ report_date }}</h4>
+    <p>
+        {% for project in report_data %}
+            <p>{{ project[0] }}</p>
+            <ul>
+                {% for changes_data in project[1] %}
+                    <li>{{ changes_data[0] }} modified lines: {{ changes_data[1] }}</li>
+                {% endfor %}
+            </ul>
+            <hr />
+        {% endfor %}
+    </p>
+</body>
+</html>
