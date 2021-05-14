@@ -1,54 +1,89 @@
 #!/bin/sh
+BASE_RESOURCE_PATH=./.my-work-resources/
+PROJECT_PYTHON_ENV_NAME=my-work-venv
+LINES_MODIFIED_PATH=${BASE_RESOURCE_PATH}collect_lines_modified.py
+REPORT_GENERATE_PATH=${BASE_RESOURCE_PATH}generate_report.py
+CONFIG_FILE_PATH=${BASE_RESOURCE_PATH}.config
+REPORT_MULTI_LINE_PROJECT_ARRAY=()
+
+is_git_repo() {
+    [[ -d .git ]] || git -C ${1} rev-parse --git-dir > /dev/null 2>&1
+}
+
+check_if_python_virtual_env_exits() {
+    [[ -f "${BASE_RESOURCE_PATH}${PROJECT_PYTHON_ENV_NAME}" ]]
+}
+
+create_python_virtual_env() {
+    python3 -m venv ${BASE_RESOURCE_PATH}${PROJECT_PYTHON_ENV_NAME}
+}
+
+check_if_weasyprint_installed() {
+    pip list --disable-pip-version-check | grep -c WeasyPrint
+}
+
+check_if_jinja2_installed() {
+    pip list --disable-pip-version-check | grep -c Jinja2
+}
+
+
+if ! [[ -f "$CONFIG_FILE_PATH" ]]; then
+    read -p "Imię i nazwisko: " name surname
+    name_and_surname="${name} ${surname}"
+    if ! [[ -z "$name_and_surname" ]]; then
+        touch "${CONFIG_FILE_PATH}"
+        echo "name_and_surname='${name_and_surname}'" > "${CONFIG_FILE_PATH}"
+    fi; else
+        . ${CONFIG_FILE_PATH}
+fi
+
+if [[ -z "$name_and_surname" ]]; then
+    echo "Konieczne poprawne wprowadzenie: Imię i nazwisko"
+fi
+
 defdate=`date "+%Y-%m"`
 
 read -p "Data logu rrrr-mm [${defdate}]: " date </dev/tty
 
-if [ -z "$date" ]; then
+if [[ -z "$date" ]]; then
   date=${defdate}
 fi
 
+if [[ -z "$gituser" ]]; then
+    defgituser=`git config user.email`
+    read -p "Email użytkownika git: [${defgituser}]: " gituser </dev/tty
 
-defgituser=`git config user.email`
-read -p "Email użytkownika git: [${defgituser}]: " gituser </dev/tty
+    if [[ -z "$gituser" ]]; then
+      gituser=${defgituser}
+    fi
 
-if [ -z "$gituser" ]; then
-  gituser=${defgituser}
+    echo "gituser='${gituser}'" >> "${CONFIG_FILE_PATH}"
 fi
-echo
-echo
 
-echo "========================================================================="
-echo "ZAŁĄCZNIK A do Raportu wykonania zlecenia"
-echo "Changes in ${PWD##*/} for date: ${date}, created by: ${gituser}"
-echo
+mkdir -p my-work-reports
 
+if is_git_repo .; then
+    echo "'my-work.sh' should run in top directory"
+    exit 1
+fi
 
-python > /dev/tty <<-EOF
-import subprocess
-from collections import Counter
+if ! check_if_python_virtual_env_exits; then
+    create_python_virtual_env
+fi
 
-data = Counter()
+source ${BASE_RESOURCE_PATH}${PROJECT_PYTHON_ENV_NAME}/bin/activate
 
-log = subprocess.check_output('git log --all --after="${date}-01 00:00" --before="${date}-31 23:59" --author=${gituser} --pretty=format:"%h"', shell=True)
+if [[ "$(check_if_weasyprint_installed)" -lt 1  || "$(check_if_jinja2_installed)" -lt 1 ]]; then
+    pip install weasyprint
+    pip install Jinja2
+fi
 
-for commit in log.splitlines():
-  commit = commit.decode()
-  try:
-    stats = subprocess.check_output('git diff %s^ %s --numstat' % (commit, commit), shell=True, stderr=open('/dev/null'))
-  except Exception:
-    stats = subprocess.check_output('git diff 4b825dc642cb6eb9a060e54bf8d69288fbee4904 %s --numstat' % commit, shell=True)
-  for stat in stats.splitlines():
-    # print(stat.decode())
-    ins, dels, f = stat.split(None, 2)
-    try:
-        data[f.decode()] += (int(ins) + int(dels))
-    except Exception:
-        pass
+for f in *; do
+    if [[ -d "$f" ]]; then
+        if is_git_repo "./$f"; then
+            REPORT_MULTI_LINE_PROJECT_ARRAY+="$(python ${LINES_MODIFIED_PATH} "$f" "$date" "$gituser")"
+        fi
+    fi
+done
 
-for f, ch in data.items():
-  print("File %s, modified lines: %s" % (f, ch))
-EOF
-
-echo ".............                                              .............."
-echo "Zleceniodawca                                              Zleceniobiorca"
-echo "========================================================================="
+python ${REPORT_GENERATE_PATH} "${name_and_surname}" "${date}" "${REPORT_MULTI_LINE_PROJECT_ARRAY[0]}"
