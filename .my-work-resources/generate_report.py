@@ -18,8 +18,10 @@ def render_template(_name_and_surname, _report_date, _report_data):
     )
 
 
-name_and_surname, report_date, report_data_raw = sys.argv[1], sys.argv[2], sys.argv[3]
-
+name_and_surname, report_date, report_data_file = sys.argv[1], sys.argv[2], sys.argv[3]
+with open(report_data_file, "r") as f:
+    report_data_raw = f.read()
+    
 # HACK: from bash array to Python list :facepalm:
 report_data = literal_eval("[" + report_data_raw.replace(")(", "), (") + "]")
 report_data = [entry for entry in report_data if entry[1]]

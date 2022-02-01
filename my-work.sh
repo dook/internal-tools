@@ -71,7 +71,11 @@ if ! check_if_python_virtual_env_exits; then
     create_python_virtual_env
 fi
 
-source ${BASE_RESOURCE_PATH}${PROJECT_PYTHON_ENV_NAME}/bin/activate
+if [ -f ${BASE_RESOURCE_PATH}${PROJECT_PYTHON_ENV_NAME}/bin/activate ]; then
+    source ${BASE_RESOURCE_PATH}${PROJECT_PYTHON_ENV_NAME}/bin/activate
+else
+    source ${BASE_RESOURCE_PATH}${PROJECT_PYTHON_ENV_NAME}/Scripts/activate
+fi
 
 if [[ "$(check_if_weasyprint_installed)" -lt 1  || "$(check_if_jinja2_installed)" -lt 1 ]]; then
     pip install weasyprint
@@ -85,5 +89,6 @@ for f in *; do
         fi
     fi
 done
-
-python ${REPORT_GENERATE_PATH} "${name_and_surname}" "${date}" "${REPORT_MULTI_LINE_PROJECT_ARRAY[0]}"
+echo ${REPORT_MULTI_LINE_PROJECT_ARRAY[0]} > ${BASE_RESOURCE_PATH}/tmp
+python ${REPORT_GENERATE_PATH} "${name_and_surname}" "${date}" "${BASE_RESOURCE_PATH}/tmp"
+rm ${BASE_RESOURCE_PATH}/tmp
