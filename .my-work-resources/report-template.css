@@ -3,14 +3,4 @@
     @bottom-center{
         content: "Strona " counter(page) " z " counter(pages);
     }
-
-    @bottom-left {
-        content: "Podpis pracownika:";
-        margin-bottom: 5em;
-    }
-
-    @bottom-right {
-        content: "Podpis pracodawcy:";
-        margin-bottom: 5em;
-    }
 }
