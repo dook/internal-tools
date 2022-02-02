@@ -1,0 +1,6 @@
+@page {
+    margin-bottom: 2.5cm;
+    @bottom-center{
+        content: "Strona " counter(page) " z " counter(pages);
+    }
+}
